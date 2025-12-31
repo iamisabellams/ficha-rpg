@@ -49,3 +49,4 @@ Após criar o arquivo `.env.local`:
 - Use `.env.local.example` como referência
 - Para produção, configure as variáveis no Cloudflare Pages ou seu provedor de hospedagem
 
+
