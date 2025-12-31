@@ -1,0 +1,12 @@
+# Configuração do Cloudflare Pages
+# Este arquivo é opcional, mas pode ser útil para configurações específicas
+
+name = "ordo-sheet"
+compatibility_date = "2024-01-01"
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+[env.preview]
+vars = { ENVIRONMENT = "preview" }
+
