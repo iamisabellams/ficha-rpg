@@ -12,18 +12,27 @@ O projeto estava aparecendo em branco no GitHub Pages porque os caminhos absolut
 
 ## Como Configurar
 
-### 1. Ajustar o Nome do Repositório
+### 1. Ajustar o Nome do Repositório ⚠️ IMPORTANTE
+
+**O nome do repositório no GitHub deve corresponder ao configurado no `vite.config.ts`!**
+
+Para descobrir o nome do seu repositório:
+1. Acesse seu repositório no GitHub
+2. Veja a URL: `https://github.com/usuario/NOME-DO-REPOSITORIO`
+3. O nome do repositório é a última parte da URL
 
 Se o nome do seu repositório **não** é `ficha-rpg`, você precisa ajustar o `base` no `vite.config.ts`:
 
 ```typescript
-// No arquivo vite.config.ts, linha ~10
+// No arquivo vite.config.ts, linha ~13
 const base = env.VITE_BASE_PATH || (mode === 'production' ? '/SEU-NOME-REPOSITORIO/' : '/');
 ```
 
 Substitua `SEU-NOME-REPOSITORIO` pelo nome real do seu repositório no GitHub.
 
 **Exemplo:** Se seu repositório é `https://github.com/usuario/minha-ficha-rpg`, use `/minha-ficha-rpg/`
+
+⚠️ **ATENÇÃO**: O nome do repositório deve corresponder EXATAMENTE, incluindo maiúsculas/minúsculas!
 
 ### 2. Fazer Deploy no GitHub Pages
 
