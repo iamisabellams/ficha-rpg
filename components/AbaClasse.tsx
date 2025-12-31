@@ -10,20 +10,18 @@ interface Props {
 }
 
 const AbaClasse: React.FC<Props> = ({ personagem, atualizarPersonagem }) => {
-  const [trilhaTemp, setTrilhaTemp] = useState<string | undefined>(undefined);
+  const [trilhaSelecionada, setTrilhaSelecionada] = useState<string>(personagem.trilha || '');
   
   const trilhasDisponiveis = TRILHAS[personagem.classe] || [];
   const jaTemTrilha = !!personagem.trilha;
   const nexSuficiente = personagem.nex >= 10;
   
-  const trilhaAtiva = jaTemTrilha 
-    ? trilhasDisponiveis.find(t => t.nome === personagem.trilha)
-    : trilhasDisponiveis.find(t => t.nome === trilhaTemp);
+  const trilhaAtiva = trilhasDisponiveis.find(t => t.nome === trilhaSelecionada);
 
   const confirmarTrilha = () => {
-    if (!trilhaTemp) return;
-    if (window.confirm(`Você selecionou a trilha "${trilhaTemp}". Esta escolha é PERMANENTE e define seu futuro na Ordem. Confirmar especialização?`)) {
-      atualizarPersonagem({ trilha: trilhaTemp });
+    if (!trilhaSelecionada) return;
+    if (window.confirm(`Você selecionou a trilha "${trilhaSelecionada}". Esta escolha é PERMANENTE e define seu futuro na Ordem. Confirmar especialização?`)) {
+      atualizarPersonagem({ trilha: trilhaSelecionada });
     }
   };
 
@@ -41,7 +39,7 @@ const AbaClasse: React.FC<Props> = ({ personagem, atualizarPersonagem }) => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Bloco Principal de Trilha */}
+      {/* Seleção de Trilha */}
       <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         <div className="p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
           <div className="flex items-center gap-3">
@@ -67,123 +65,140 @@ const AbaClasse: React.FC<Props> = ({ personagem, atualizarPersonagem }) => {
                 <div className="bg-sky-500 h-full transition-all duration-1000" style={{ width: `${(personagem.nex / 10) * 100}%` }}></div>
               </div>
             </div>
-          ) : jaTemTrilha ? (
-            <div className="animate-in fade-in duration-500">
-              <div className="p-4 rounded-xl bg-sky-50 dark:bg-sky-500/5 border border-sky-500/10 mb-4">
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed italic">
-                  {trilhaAtiva?.descricao}
-                </p>
-              </div>
-              <div className="flex items-center gap-2 text-[9px] font-black uppercase text-sky-500 bg-sky-500/10 w-fit px-3 py-1 rounded-full">
-                <div className="w-1.5 h-1.5 bg-sky-500 rounded-full animate-pulse"></div>
-                Trilha Fixada no Terminal
-              </div>
-            </div>
           ) : (
-            <div className="space-y-6">
-              <div className="bg-amber-500/10 border-l-4 border-amber-500 p-4 rounded-r-xl">
-                <p className="text-[10px] sm:text-xs text-amber-700 dark:text-amber-400 font-bold uppercase tracking-tight">
-                  Ação Necessária: Selecione uma trilha para prosseguir com seu treinamento.
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {trilhasDisponiveis.map(t => (
-                  <button 
-                    key={t.nome}
-                    onClick={() => setTrilhaTemp(t.nome)}
-                    className={`text-left p-4 rounded-xl border-2 transition-all relative group ${
-                      trilhaTemp === t.nome 
-                        ? 'border-sky-500 bg-sky-50 dark:bg-sky-500/10' 
-                        : 'border-slate-100 dark:border-slate-800 hover:border-slate-300'
-                    }`}
-                  >
-                    <h3 className={`font-black uppercase text-[10px] sm:text-xs tracking-tight ${
-                      trilhaTemp === t.nome ? 'text-sky-600 dark:text-sky-400' : 'text-slate-700 dark:text-slate-300'
-                    }`}>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">
+                  Selecione uma Trilha
+                </label>
+                <select
+                  value={trilhaSelecionada}
+                  onChange={(e) => setTrilhaSelecionada(e.target.value)}
+                  disabled={jaTemTrilha}
+                  className={`w-full p-3 rounded-xl border-2 transition-all text-sm font-medium ${
+                    jaTemTrilha 
+                      ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 cursor-not-allowed' 
+                      : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20'
+                  }`}
+                >
+                  <option value="">-- Selecione uma trilha --</option>
+                  {trilhasDisponiveis.map(t => (
+                    <option key={t.nome} value={t.nome}>
                       {t.nome}
-                    </h3>
-                    <p className="text-[9px] sm:text-[10px] text-slate-500 mt-1 line-clamp-2 leading-snug">
-                      {t.descricao}
-                    </p>
-                  </button>
-                ))}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {trilhaTemp && (
+              {!jaTemTrilha && trilhaSelecionada && (
                 <button 
                   onClick={confirmarTrilha}
-                  className="w-full flex items-center justify-center gap-2 bg-sky-500 hover:bg-sky-600 text-white font-black uppercase text-[10px] py-4 rounded-xl shadow-xl shadow-sky-500/20 transition-all active:scale-95 animate-in slide-in-from-top-2"
+                  className="w-full flex items-center justify-center gap-2 bg-sky-500 hover:bg-sky-600 text-white font-black uppercase text-[10px] py-4 rounded-xl shadow-xl shadow-sky-500/20 transition-all active:scale-95"
                 >
                   <IconSave className="w-3 h-3" />
                   Confirmar Especialização
                 </button>
+              )}
+
+              {jaTemTrilha && (
+                <div className="flex items-center gap-2 text-[9px] font-black uppercase text-sky-500 bg-sky-500/10 w-fit px-3 py-1 rounded-full">
+                  <div className="w-1.5 h-1.5 bg-sky-500 rounded-full animate-pulse"></div>
+                  Trilha Fixada no Terminal
+                </div>
               )}
             </div>
           )}
         </div>
       </div>
 
-      {/* Grid de Habilidades */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      {/* Informações da Trilha Selecionada */}
+      {trilhaAtiva && (
         <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/30">
-            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Poderes da Trilha</h3>
+            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{trilhaAtiva.nome}</h3>
           </div>
-          <div className="p-4 sm:p-6 space-y-3">
-            {trilhaAtiva ? (
-              trilhaAtiva.habilidades.map(h => (
-                <div key={h.nome} className={`p-4 rounded-xl border-l-4 transition-all ${
-                  personagem.nex >= h.nex 
-                    ? 'border-sky-500 bg-sky-50/50 dark:bg-sky-500/5' 
-                    : 'border-slate-200 dark:border-slate-800 bg-slate-50/30 opacity-50'
-                }`}>
-                  <div className="flex justify-between items-start mb-1.5">
-                    <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${
-                      personagem.nex >= h.nex ? 'bg-sky-500 text-white' : 'bg-slate-200 text-slate-500 dark:bg-slate-800'
-                    }`}>
-                      NEX {h.nex}%
-                    </span>
-                    {personagem.nex < h.nex && <span className="text-[8px] font-bold text-slate-400 uppercase">Bloqueado</span>}
-                  </div>
-                  <h4 className="text-[10px] sm:text-xs font-black dark:text-white uppercase mb-1">{h.nome}</h4>
-                  <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                    {h.descricao}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <div className="py-12 text-center text-slate-400 italic text-[10px] uppercase tracking-widest">
-                Selecione uma trilha para ver seus poderes.
+          
+          <div className="p-5 sm:p-8 space-y-6">
+            {/* Requisito Especial */}
+            {trilhaAtiva.requisitoEspecial && (
+              <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-500/20">
+                <h4 className="text-[10px] font-black uppercase text-amber-600 dark:text-amber-400 tracking-widest mb-2">Requisito Especial</h4>
+                <p className="text-xs sm:text-sm text-amber-700 dark:text-amber-300 leading-relaxed">
+                  {trilhaAtiva.requisitoEspecial}
+                </p>
               </div>
             )}
+
+            {/* Descrição */}
+            <div className="p-4 rounded-xl bg-sky-50 dark:bg-sky-500/5 border border-sky-500/10">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed italic">
+                {trilhaAtiva.descricao}
+              </p>
+            </div>
+
+            {/* Informações Extras */}
+            {trilhaAtiva.informacoesExtras && (
+              <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-500/10 border border-purple-500/20">
+                <h4 className="text-[10px] font-black uppercase text-purple-600 dark:text-purple-400 tracking-widest mb-2">Informações Adicionais</h4>
+                <p className="text-xs sm:text-sm text-purple-700 dark:text-purple-300 leading-relaxed whitespace-pre-line">
+                  {trilhaAtiva.informacoesExtras}
+                </p>
+              </div>
+            )}
+
+            {/* Habilidades */}
+            <div>
+              <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Habilidades da Trilha</h4>
+              <div className="space-y-3">
+                {trilhaAtiva.habilidades.map(h => (
+                  <div key={h.nome} className={`p-4 rounded-xl border-l-4 transition-all ${
+                    personagem.nex >= h.nex 
+                      ? 'border-sky-500 bg-sky-50/50 dark:bg-sky-500/5' 
+                      : 'border-slate-200 dark:border-slate-800 bg-slate-50/30 opacity-50'
+                  }`}>
+                    <div className="flex justify-between items-start mb-1.5">
+                      <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                        personagem.nex >= h.nex ? 'bg-sky-500 text-white' : 'bg-slate-200 text-slate-500 dark:bg-slate-800'
+                      }`}>
+                        NEX {h.nex}%
+                      </span>
+                      {personagem.nex < h.nex && <span className="text-[8px] font-bold text-slate-400 uppercase">Bloqueado</span>}
+                    </div>
+                    <h5 className="text-[10px] sm:text-xs font-black dark:text-white uppercase mb-2">{h.nome}</h5>
+                    <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed whitespace-pre-line">
+                      {h.descricao}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Rituais para Ocultista */}
-        {personagem.classe === 'Ocultista' && (
-          <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-purple-500/10">
-              <h3 className="text-[10px] font-black uppercase text-purple-500 tracking-widest">Grimório Ritualístico</h3>
-            </div>
-            <div className="p-4 sm:p-6 space-y-3">
-              {RITUAIS_BASE.map(r => (
-                <div key={r.nome} className="p-3 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800">
-                  <div className="flex justify-between items-center mb-1">
-                    <h4 className="font-bold text-slate-800 dark:text-white text-[10px] sm:text-xs uppercase">{r.nome}</h4>
-                    <span className="text-[8px] font-black uppercase text-purple-500 bg-purple-500/10 px-1.5 py-0.5 rounded">
-                      {r.elemento} • C1
-                    </span>
-                  </div>
-                  <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-snug">
-                    {r.descricao}
-                  </p>
-                </div>
-              ))}
-            </div>
+      {/* Rituais para Ocultista */}
+      {personagem.classe === 'Ocultista' && (
+        <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-purple-500/10">
+            <h3 className="text-[10px] font-black uppercase text-purple-500 tracking-widest">Grimório Ritualístico</h3>
           </div>
-        )}
-      </div>
+          <div className="p-4 sm:p-6 space-y-3">
+            {RITUAIS_BASE.map(r => (
+              <div key={r.nome} className="p-3 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800">
+                <div className="flex justify-between items-center mb-1">
+                  <h4 className="font-bold text-slate-800 dark:text-white text-[10px] sm:text-xs uppercase">{r.nome}</h4>
+                  <span className="text-[8px] font-black uppercase text-purple-500 bg-purple-500/10 px-1.5 py-0.5 rounded">
+                    {r.elemento} • C1
+                  </span>
+                </div>
+                <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-snug">
+                  {r.descricao}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

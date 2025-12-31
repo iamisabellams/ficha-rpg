@@ -25,6 +25,8 @@ export interface Trilha {
   nome: string;
   descricao: string;
   habilidades: Habilidade[];
+  requisitoEspecial?: string;
+  informacoesExtras?: string;
 }
 
 export interface Ritual {

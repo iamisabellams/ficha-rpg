@@ -57,23 +57,42 @@ const App: React.FC = () => {
   }, [tema]);
 
   useEffect(() => {
+    // Verificar se Supabase está configurado
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      // Se não estiver configurado, permitir acesso direto (modo desenvolvimento)
+      console.warn('⚠️ Modo desenvolvimento: Supabase não configurado. Acesso direto permitido.');
+      setIsLoggedIn(true);
+      return;
+    }
+
     // Verificar se há sessão ativa no Supabase
     const verificarAutenticacao = async () => {
-      const temSessao = await verificarSessao();
-      if (temSessao) {
-        setIsLoggedIn(true);
+      try {
+        const temSessao = await verificarSessao();
+        if (temSessao) {
+          setIsLoggedIn(true);
+        }
+      } catch (error) {
+        console.error('Erro ao verificar sessão:', error);
       }
     };
     verificarAutenticacao();
 
     // Escutar mudanças na autenticação
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsLoggedIn(!!session);
-    });
+    try {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        setIsLoggedIn(!!session);
+      });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+      return () => {
+        subscription.unsubscribe();
+      };
+    } catch (error) {
+      console.error('Erro ao configurar listener de autenticação:', error);
+    }
   }, []);
 
   useEffect(() => {

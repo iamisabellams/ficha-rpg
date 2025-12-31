@@ -6,14 +6,23 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase URL e Anon Key não configurados. Configure as variáveis VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY');
+  console.warn('⚠️ Supabase URL e Anon Key não configurados.');
+  console.warn('📝 Crie um arquivo .env.local na raiz do projeto com:');
+  console.warn('   VITE_SUPABASE_URL=https://seu-projeto.supabase.co');
+  console.warn('   VITE_SUPABASE_ANON_KEY=sua-chave-anon-aqui');
+  console.warn('💡 A aplicação continuará funcionando, mas sem persistência de dados.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// Criar cliente apenas se tiver as credenciais válidas
+// Se não tiver, usar valores placeholder que não quebram a aplicação
+const finalUrl = supabaseUrl || 'https://placeholder.supabase.co';
+const finalKey = supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDUxOTIwMDAsImV4cCI6MTk2MDc2ODAwMH0.placeholder';
+
+export const supabase = createClient(finalUrl, finalKey, {
   auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true
+    persistSession: !!supabaseUrl && !!supabaseAnonKey,
+    autoRefreshToken: !!supabaseUrl && !!supabaseAnonKey,
+    detectSessionInUrl: !!supabaseUrl && !!supabaseAnonKey
   }
 });
 
